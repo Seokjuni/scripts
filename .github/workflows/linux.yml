@@ -1,0 +1,26 @@
+name: check clean build
+
+
+on:
+        push:
+                paths: [linux]
+
+
+jobs:
+        build:
+                runs-on: ubuntu-20.04
+
+                steps:
+                        - uses: actions/checkout@v2
+
+                        - name: Install Dependencies
+                          
+                          run: ./install-deps.sh
+
+                        - name: Build source code
+                          run: |
+                                  submodule_header="$(git submodule status | awk '{print $1;}')"
+                                  submodule_header=$(echo $submodule_header | cut -c 2-)
+                                  wget https://github.com/Seokjuni/linux/archive/$submodule_header.zip
+                                  unzip $submodule_header.zip
+                                  ./build-linux.sh linux-$submodule_header tinyconfig
