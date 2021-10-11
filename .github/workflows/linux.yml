@@ -1,28 +1,34 @@
 name: check clean build
 
-
 on:
   push:
-    paths: [linux]
+    branches: [ main, csi2115-f21 ]
+    paths:
+      - 'linux'
 
+    pull_request:
+      branches: [ main ]
 
-  workflow_dispatch:
-
+    workflow_dispatch:
 
 jobs:
+
   build:
+
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Install Dependencies
+      - name: Checkout
+        uses: actions/checkout@v2 
+                                  
+      - name: Install
         run: ./install-deps.sh
-
-      - name: Build source code
-        run: |
-          submodule_header="$(git submodule status | awk '{print $1;}')"
-          submodule_header=$(echo $submodule_header | cut -c 2-)
-          wget https://github.com/Seokjuni/linux/archive/$submodule_header.zip
-          unzip $submodule_header.zip
-          ./build-linux.sh linux-$submodule_header tinyconfig
+                                                   
+      - name: Download
+        run: wget https://github.com/2019147507/linux/archive/$(git rev-parse HEAD:linux).zip
+                                                                  
+      - name: Unzip
+        run: unzip $(git rev-parse HEAD:linux).zip
+                                                                                    
+      - name: Build
+        run: ./build-linux.sh linux-$(git rev-parse HEAD:linux) tinyconfig
